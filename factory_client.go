@@ -1,6 +1,7 @@
 package main
 
 import (
+	"io"
 	"math/rand"
 	"net"
 	"server/client"
@@ -8,29 +9,43 @@ import (
 )
 
 type ClientAllocator struct {
-	clientPool  *client.Pool
+	clientPool *client.Pool
 }
 
 func InitAllocator() *ClientAllocator {
 	allocator := &ClientAllocator{
-		clientPool:new(client.Pool),
+		clientPool: new(client.Pool),
 	}
 	return allocator
 }
 
 // registerClient 注册新的client
 func (allocator *ClientAllocator) registerClient(conn net.Conn) {
-	client := new(client.Client)
+	_ = conn.SetReadDeadline(time.Now().Add(5 * time.Minute))
+	for {
+		c := makeClient(conn)
 
-	client.Created = time.Unix(time.Now().Unix(),0).Format(DateFormat)
-	client.ActiveTime = time.Unix(time.Now().Unix(),0).Format(DateFormat)
-	client.Conn = conn
+		mesLen, err := c.ReadMessage()
 
+		if mesLen == -1 || (mesLen == 0 && err == io.EOF) {
+			_ = c.Close(true)
+			break
+		}
+
+		allocator.clientPool.Push(c)
+	}
+}
+
+// makeClient 创建Client
+func makeClient(conn net.Conn) (c *client.Client) {
+	c = new(client.Client)
 	// 生成clientId
 	rand.Seed(time.Now().UnixNano())
-	client.ID = rand.Uint64()
+	c.ID = rand.Uint64()
+	c.Created = time.Unix(time.Now().Unix(), 0).Format(DateFormat)
+	c.ActiveTime = time.Unix(time.Now().Unix(), 0).Format(DateFormat)
 
-	client.ReadMessage()
+	c.Conn = conn
 
-	allocator.clientPool.Push(client)
+	return c
 }

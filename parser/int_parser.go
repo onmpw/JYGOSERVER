@@ -1,14 +1,16 @@
 package parser
 
-import "fmt"
+import (
+	"strconv"
+)
 
 type IntParser struct {
-	Parser 			*ParseVal
-	identifier 		int
+	Parser     *ParseVal
+	identifier int
 }
 
 type IntVal struct {
-	val 	int
+	val int
 }
 
 func newIntParser(p *ParseVal) *IntParser {
@@ -22,10 +24,34 @@ func (parse *IntParser) myType() int {
 	return parse.identifier
 }
 
-func (parse *IntParser) Parse() (interface{},error){
-	val := new(ParseVal)
+// Parse 实现了 ParseContract 的 Parse方法
+// Int数据解析入口方法
+func (parse *IntParser) Parse() (interface{}, error) {
+	val := new(IntVal)
 
-	fmt.Println("IntParser")
+	con, err := parse.getContent()
 
-	return val,nil
+	val.val = con
+
+	if err != nil {
+		return val, err
+	}
+
+	return val, nil
+}
+
+// 获取Int数据
+func (parse *IntParser) getContent() (content int, err error) {
+	v, err := parse.Parser.readBySplitter()
+
+	if err != nil {
+		return 0, err
+	}
+	content, err = strconv.Atoi(v)
+
+	if err != nil {
+		return 0, err
+	}
+
+	return content, nil
 }

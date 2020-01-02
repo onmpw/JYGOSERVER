@@ -5,13 +5,13 @@ import (
 )
 
 type StringParser struct {
-	Parser 			*ParseVal
-	identifier 		int
+	Parser     *ParseVal
+	identifier int
 }
 
 type StringVal struct {
-	len 	int
-	val 	string
+	len int
+	val string
 }
 
 func newStringParser(p *ParseVal) *StringParser {
@@ -25,8 +25,9 @@ func (parse *StringParser) myType() int {
 	return parse.identifier
 }
 
-// Parse 解析字符串类型的消息
-func (parse *StringParser) Parse() (interface{},error) {
+// Parse 实现了 ParseContract 的 Parse方法
+// 解析字符串类型的消息
+func (parse *StringParser) Parse() (interface{}, error) {
 	val := new(StringVal)
 	var err error
 
@@ -39,31 +40,33 @@ func (parse *StringParser) Parse() (interface{},error) {
 	val.val, err = parse.getContent()
 
 	if err != nil {
-		return val,err
+		return val, err
 	}
 
-	return val,nil
+	return val, nil
 }
 
-func (parse *StringParser) getLength() (int,error) {
-	v,err := parse.Parser.readBySplitter()
+// 获取消息的长度
+func (parse *StringParser) getLength() (int, error) {
+	v, err := parse.Parser.readBySplitter()
 
 	if err != nil {
-		return 0,err
+		return 0, err
 	}
-	strLen,err := strconv.Atoi(v)
+	strLen, err := strconv.Atoi(v)
 
 	if err != nil {
-		return 0,err
+		return 0, err
 	}
 
-	return strLen,nil
+	return strLen, nil
 }
 
-func (parse *StringParser) getContent() (string,error) {
-	v,err := parse.Parser.readBySplitter()
+// 获取消息内容
+func (parse *StringParser) getContent() (string, error) {
+	v, err := parse.Parser.readBySplitter()
 	if err != nil {
-		return "",err
+		return "", err
 	}
-	return v,nil
+	return v, nil
 }

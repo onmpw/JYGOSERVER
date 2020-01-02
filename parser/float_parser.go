@@ -1,14 +1,16 @@
 package parser
 
-import "fmt"
+import (
+	"strconv"
+)
 
 type FloatParser struct {
-	Parser 			*ParseVal
-	identifier 		int
+	Parser     *ParseVal
+	identifier int
 }
 
 type FloatVal struct {
-	val 	int
+	val float64
 }
 
 func newFloatParser(p *ParseVal) *FloatParser {
@@ -22,11 +24,34 @@ func (parse *FloatParser) myType() int {
 	return parse.identifier
 }
 
-func (parse *FloatParser) Parse() (interface{},error){
-	val := new(ParseVal)
+// Parse 实现了 ParseContract 的 Parse方法
+// Float数据解析入口方法
+func (parse *FloatParser) Parse() (interface{}, error) {
+	val := new(FloatVal)
 
-	fmt.Println(val)
-	fmt.Println("FloatParser")
+	con, err := parse.getContent()
 
-	return val,nil
+	val.val = con
+
+	if err != nil {
+		return val, err
+	}
+
+	return val, nil
+}
+
+// 获取Float数据
+func (parse *FloatParser) getContent() (content float64, err error) {
+	v, err := parse.Parser.readBySplitter()
+
+	if err != nil {
+		return 0, err
+	}
+	content, err = strconv.ParseFloat(v, 64)
+
+	if err != nil {
+		return 0, err
+	}
+
+	return content, nil
 }
