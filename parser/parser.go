@@ -14,6 +14,8 @@ const (
 )
 
 const Splitter = "\\r\\n"
+const CmdIdentifier = "*"
+const NormalIdentifier = "$"
 
 type OneByte byte
 
@@ -53,9 +55,9 @@ type Val struct {
 func (mt OneByte) String() string {
 	switch mt {
 	case 36:
-		return "$"
+		return NormalIdentifier
 	case 42:
-		return "*"
+		return CmdIdentifier
 	default:
 		return ""
 	}

@@ -1,22 +1,35 @@
 package main
 
 import (
+	"server/client"
+	"server/command"
+	"server/handler"
 	"server/parser"
 )
 
 func startParserServer() {
 	for {
-		client := allocator.clientPool.Pop()
-		if client != nil {
+		c := allocator.clientPool.Pop()
+		if c != nil {
 			// 提取client的消息 开始进行解析
-			val, suc := parser.Parser(client.Message.Content)
-			client.Data = val
+			val, suc := parser.Parser(c.Message.Content)
+			c.Data = val
 			if !suc {
-				client.Err = val.Error
-				client.Response()
+				c.Err = val.Error
+				c.Response()
 				continue
 			}
-			client.Response()
+
+			SetClient(c)
+			c.Response()
 		}
+	}
+}
+
+func SetClient(c *client.Client) {
+	if c.Data.MesType.String() == parser.CmdIdentifier {
+		command.RegisterCmd(c)
+	} else if c.Data.MesType.String() == parser.NormalIdentifier {
+		handler.RegisterHandler(c)
 	}
 }

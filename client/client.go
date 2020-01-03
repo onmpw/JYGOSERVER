@@ -5,9 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net"
-	"server/command"
 	"server/parser"
-	"server/storage"
 	"sync"
 )
 
@@ -15,15 +13,19 @@ const (
 	BufferSize = 1024
 )
 
+type Message struct {
+	Content string
+	Len     int
+}
+
 type Client struct {
 	Err        error
 	ID         uint64
 	Conn       net.Conn
 	Created    string
 	ActiveTime string
-	Message    *storage.Message
+	Message    *Message
 	Data       *parser.Val
-	Command    *command.Command
 }
 
 type Pool struct {
@@ -62,7 +64,7 @@ func (clientPool *Pool) Pop() (client *Client) {
 func (client *Client) ReadMessage() (num int, err error) {
 	num, mess, err := client.readMessageFromConn(client.Conn)
 
-	message := new(storage.Message)
+	message := new(Message)
 	message.Len = num
 	message.Content = mess
 	client.Message = message
@@ -99,6 +101,7 @@ func (client *Client) readMessageFromConn(conn net.Conn) (Len int, str string, e
 	return Len, str, err
 }
 
+// Response 向客户端返回信息
 func (client *Client) Response() {
 	if client.Err != nil {
 		client.ErrorResponse()
@@ -111,6 +114,7 @@ func (client *Client) Response() {
 	}
 }
 
+// ErrorResponse 错误响应
 func (client *Client) ErrorResponse() {
 	errMes := fmt.Sprintf("错误:%s", client.Err.Error())
 
@@ -122,7 +126,6 @@ func (client *Client) ErrorResponse() {
 }
 
 func (client *Client) response(mes string) error {
-	fmt.Println(mes)
 	num, err := client.Conn.Write([]byte(mes))
 
 	if err != nil {
