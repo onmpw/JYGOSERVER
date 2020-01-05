@@ -21,15 +21,14 @@ func startParserServer() {
 			}
 
 			SetClient(c)
-			c.Response()
 		}
 	}
 }
 
 func SetClient(c *client.Client) {
 	if c.Data.MesType.String() == parser.CmdIdentifier {
-		command.RegisterCmd(c)
+		command.RegisterClient(c)
 	} else if c.Data.MesType.String() == parser.NormalIdentifier {
-		handler.RegisterHandler(c)
+		handler.RegisterClient(c)
 	}
 }

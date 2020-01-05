@@ -17,6 +17,9 @@ func main() {
 	// 开启消息解析器
 	go startParserServer()
 
+	// 开启handler处理器
+	go startHandlerServer()
+
 	tcpAddr, err := net.ResolveTCPAddr(NETWORK, Host+":"+Port)
 
 	if err != nil {
