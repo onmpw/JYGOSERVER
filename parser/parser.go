@@ -13,9 +13,16 @@ const (
 	Array
 )
 
-const Splitter = "\\r\\n"
-const CmdIdentifier = "*"
-const NormalIdentifier = "$"
+const (
+	// 分隔符
+	Splitter = "\\r\\n"
+
+	// 命令标识符
+	CmdIdentifier = "*"
+
+	// 普通消息标识符
+	NormalIdentifier = "$"
+)
 
 type OneByte byte
 
@@ -38,8 +45,11 @@ type ParseVal struct {
 }
 
 type Val struct {
+	// ErrorFlag 是否有错误
 	ErrorFlag bool
-	Error     error
+	// Error 错误信息
+	Error error
+
 	// MesType 	消息类型标识
 	MesType OneByte
 
@@ -49,9 +59,11 @@ type Val struct {
 	// ActiveMess 下一步要解析的数据
 	ActiveMess string
 
+	// Value 存储解析出来的消息内容
 	Value *ParseVal
 }
 
+// String 重写string的String()方法
 func (mt OneByte) String() string {
 	switch mt {
 	case 36:
@@ -63,6 +75,7 @@ func (mt OneByte) String() string {
 	}
 }
 
+// ParseContract 接口
 type ParseContract interface {
 	myType() int
 	Parse() (interface{}, error)
@@ -93,6 +106,7 @@ func Parser(message string) (*Val, bool) {
 	return jv, true
 }
 
+// startParse 开始进行消息内容的解析
 func startParse(message string) (*ParseVal, error) {
 	var val = new(ParseVal)
 
@@ -174,6 +188,7 @@ func readByIndex(reader *strings.Reader, offset int64) (rb byte, e error) {
 	return rb, e
 }
 
+// readBySplitter 通过分隔符读取数据
 func (val *ParseVal) readBySplitter() (str string, err error) {
 	index := strings.Index(val.ActiveMess, Splitter)
 
@@ -186,6 +201,7 @@ func (val *ParseVal) readBySplitter() (str string, err error) {
 	return str, nil
 }
 
+// setError 设置错误信息
 func (val *Val) setError(err error) {
 	val.ErrorFlag = true
 	val.Error = err

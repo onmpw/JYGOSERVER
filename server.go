@@ -11,11 +11,7 @@ var allocator *ClientAllocator
 
 func main() {
 
-	go func() {
-		if err := http.ListenAndServe(":6060", nil); err != nil {
-			log.Fatalf("pprof failed: %v", err)
-		}
-	}()
+	go startHttpProf()
 
 	// 加载配置项
 	loadConfig()
@@ -55,5 +51,11 @@ func main() {
 
 		go allocator.registerClient(conn)
 	}
+}
 
+// startHttpProf 开启http服务用于进行pprof 分析
+func startHttpProf() {
+	if err := http.ListenAndServe(":6060", nil); err != nil {
+		log.Fatalf("pprof failed: %v", err)
+	}
 }

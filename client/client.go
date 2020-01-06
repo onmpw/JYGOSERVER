@@ -85,8 +85,6 @@ func (client *Client) readMessageFromConn(conn net.Conn) (Len int, str string, e
 
 	num, err = reader.Read(length)
 
-	fmt.Println(length)
-	fmt.Println(string(length))
 	mesLen := byteToInt(length)
 
 	for {
@@ -102,8 +100,6 @@ func (client *Client) readMessageFromConn(conn net.Conn) (Len int, str string, e
 		}
 
 		buffer.Write(rb[0:num])
-		fmt.Println(num, Len)
-		fmt.Println(mesLen)
 		if num < BufferSize || Len == mesLen {
 			break
 		}
@@ -138,11 +134,12 @@ func (client *Client) ErrorResponse() {
 	}
 }
 
+// response 响应客户端
 func (client *Client) response(mes string) error {
-	fmt.Println(mes)
 	num, err := client.Conn.Write([]byte(mes))
 
 	if err != nil {
+		fmt.Println(client, err)
 		return err
 	}
 
@@ -155,6 +152,7 @@ func (client *Client) response(mes string) error {
 	return err
 }
 
+// Close 关闭client
 func (client *Client) Close(closeConn bool) (err error) {
 	client.Data = nil
 	client.Message = nil
@@ -167,18 +165,19 @@ func (client *Client) Close(closeConn bool) (err error) {
 	return err
 }
 
+// byteToInt 用于解析客户端传来的消息长度
 func byteToInt(bytes []byte) (r int) {
 	var j = 7
-	/*var d = 48
-	var a = 39*/
+	var d = 48
+	var a = 39
 	for i := 0; i < len(bytes); i++ {
-		b := uint(bytes[i])
-		/*if b - d - a >= 0 {
-			b = b-d-a
+		b := int(bytes[i])
+		if b > d+a {
+			b = b - d - a
 		} else {
-			b = b - 48
-		}*/
-		r |= int(b << uint((j-i)*4) & 0xffffffff)
+			b = b - d
+		}
+		r |= b << uint((j-i)*4) & 0xffffffff
 	}
 	return r
 }
