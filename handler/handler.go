@@ -10,26 +10,22 @@ type ContractHandler interface {
 
 var handler ContractHandler
 
-var clients []*client.Client
+var clientChan chan *client.Client
+
+func InitHandlerPool() <-chan *client.Client {
+	clientChan = make(chan *client.Client, client.ClientsMax)
+
+	return clientChan
+}
 
 func RegisterHandler() {
 	handler = new(OrderHandler)
 }
 
 func RegisterClient(c *client.Client) {
-	clients = append(clients, c)
-}
-
-func Pop() *client.Client {
-	if len(clients) <= 0 {
-		return nil
+	if c != nil {
+		clientChan <- c
 	}
-
-	c := clients[0]
-
-	clients = clients[1:]
-
-	return c
 }
 
 func Handle(c *client.Client) {

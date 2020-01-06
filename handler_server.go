@@ -1,14 +1,17 @@
 package main
 
-import "server/handler"
+import (
+	"server/handler"
+)
 
 func startHandlerServer() {
+	cc := handler.InitHandlerPool()
+
 	handler.RegisterHandler()
 
 	for {
-		c := handler.Pop()
-
-		if c != nil {
+		select {
+		case c := <-cc:
 			handler.Handle(c)
 		}
 	}

@@ -3,11 +3,20 @@ package main
 import (
 	"log"
 	"net"
+	"net/http"
+	_ "net/http/pprof"
 )
 
 var allocator *ClientAllocator
 
 func main() {
+
+	go func() {
+		if err := http.ListenAndServe(":6060", nil); err != nil {
+			log.Fatalf("pprof failed: %v", err)
+		}
+	}()
+
 	// 加载配置项
 	loadConfig()
 

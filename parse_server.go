@@ -19,7 +19,6 @@ func startParserServer() {
 				c.Response()
 				continue
 			}
-
 			SetClient(c)
 		}
 	}

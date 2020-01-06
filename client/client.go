@@ -1,6 +1,7 @@
 package client
 
 import (
+	"bufio"
 	"bytes"
 	"fmt"
 	"io"
@@ -10,7 +11,8 @@ import (
 )
 
 const (
-	BufferSize = 1024
+	BufferSize = 100
+	ClientsMax = 1024
 )
 
 type Message struct {
@@ -74,13 +76,23 @@ func (client *Client) ReadMessage() (num int, err error) {
 
 // readMessageFromConn 从连接中读取数据
 func (client *Client) readMessageFromConn(conn net.Conn) (Len int, str string, err error) {
-	var buffer = bytes.NewBuffer(make([]byte, 0, BufferSize))
+	var buffer = bytes.NewBuffer(make([]byte, 0))
 	var rb = make([]byte, BufferSize)
+	var length = make([]byte, 8)
 	var num int
 
+	reader := bufio.NewReader(conn)
+
+	num, err = reader.Read(length)
+
+	fmt.Println(length)
+	fmt.Println(string(length))
+	mesLen := byteToInt(length)
+
 	for {
-		num, err = conn.Read(rb)
+		num, err = reader.Read(rb)
 		Len += num
+
 		if err != nil {
 			if err == io.EOF {
 				break
@@ -90,8 +102,9 @@ func (client *Client) readMessageFromConn(conn net.Conn) (Len int, str string, e
 		}
 
 		buffer.Write(rb[0:num])
-
-		if num < BufferSize {
+		fmt.Println(num, Len)
+		fmt.Println(mesLen)
+		if num < BufferSize || Len == mesLen {
 			break
 		}
 	}
@@ -126,6 +139,7 @@ func (client *Client) ErrorResponse() {
 }
 
 func (client *Client) response(mes string) error {
+	fmt.Println(mes)
 	num, err := client.Conn.Write([]byte(mes))
 
 	if err != nil {
@@ -151,4 +165,20 @@ func (client *Client) Close(closeConn bool) (err error) {
 	client.Conn = nil
 
 	return err
+}
+
+func byteToInt(bytes []byte) (r int) {
+	var j = 7
+	/*var d = 48
+	var a = 39*/
+	for i := 0; i < len(bytes); i++ {
+		b := uint(bytes[i])
+		/*if b - d - a >= 0 {
+			b = b-d-a
+		} else {
+			b = b - 48
+		}*/
+		r |= int(b << uint((j-i)*4) & 0xffffffff)
+	}
+	return r
 }
