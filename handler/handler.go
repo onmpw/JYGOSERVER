@@ -1,10 +1,12 @@
 package handler
 
 import (
+	"log"
 	"server/client"
 )
 
 type ContractHandler interface {
+	Init() error
 	Handle(c *client.Client) bool
 }
 
@@ -20,6 +22,12 @@ func InitHandlerPool() <-chan *client.Client {
 
 func RegisterHandler() {
 	handler = new(OrderHandler)
+
+	err := handler.Init()
+
+	if err != nil {
+		log.Panic(err.Error())
+	}
 }
 
 func RegisterClient(c *client.Client) {

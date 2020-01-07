@@ -8,6 +8,10 @@ import (
 )
 
 func startParserServer() {
+	// 初始化解析器
+	parser.Init()
+
+	// 开始解析
 	for {
 		c := allocator.clientPool.Pop()
 		if c != nil {
@@ -24,6 +28,7 @@ func startParserServer() {
 	}
 }
 
+// SetClient 将解析完消息的客户端放入相应的队列
 func SetClient(c *client.Client) {
 	if c.Data.MesType.String() == parser.CmdIdentifier {
 		command.RegisterClient(c)

@@ -27,7 +27,7 @@ func (parse *StringParser) myType() int {
 
 // Parse 实现了 ParseContract 的 Parse方法
 // 解析字符串类型的消息
-func (parse *StringParser) Parse() (interface{}, error) {
+func (parse *StringParser) Parse() (ParseValContract, error) {
 	val := new(StringVal)
 	var err error
 
@@ -69,4 +69,16 @@ func (parse *StringParser) getContent() (string, error) {
 		return "", err
 	}
 	return v, nil
+}
+
+// GetValue 实现 ParseValContract接口GetValue
+// 获取解析后的结果中的字符串值
+func (val *StringVal) GetValue() interface{} {
+	return val.val
+}
+
+// GetType 实现 ParseValContract 接口 GetType
+// 获取值的类型
+func (val *StringVal) GetType() int {
+	return Str
 }

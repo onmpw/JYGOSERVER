@@ -41,7 +41,7 @@ type ParseVal struct {
 	TypeVal string
 
 	// Data 	消息数据
-	Data interface{}
+	Data ParseValContract
 }
 
 type Val struct {
@@ -63,6 +63,28 @@ type Val struct {
 	Value *ParseVal
 }
 
+// ParseContract 接口
+type ParseContract interface {
+	myType() int
+	Parse() (ParseValContract, error)
+}
+
+type ParseValContract interface {
+	GetValue() interface{}
+	GetType() int
+}
+
+var T map[int]string
+
+// Init 初始化解析器
+func Init() {
+	T = make(map[int]string)
+	T[Str] = "string"
+	T[Int] = "int"
+	T[Float] = "float"
+	T[Array] = "array"
+}
+
 // String 重写string的String()方法
 func (mt OneByte) String() string {
 	switch mt {
@@ -73,12 +95,6 @@ func (mt OneByte) String() string {
 	default:
 		return ""
 	}
-}
-
-// ParseContract 接口
-type ParseContract interface {
-	myType() int
-	Parse() (interface{}, error)
 }
 
 // Parser 开始解析
@@ -205,4 +221,27 @@ func (val *ParseVal) readBySplitter() (str string, err error) {
 func (val *Val) setError(err error) {
 	val.ErrorFlag = true
 	val.Error = err
+}
+
+// GetString 获取从消息中解析出来的string值
+func GetString(val *Val) (str string, err error) {
+	// 首先判断消息是否是字符串类型
+	// 如果是，则返回具体值； 不是 则返回错误信息
+	if val.Value.TypeKey != Str {
+		return str, fmt.Errorf("您的消息不是期望的字符串类型，而是%s", T[val.Value.TypeKey])
+	}
+
+	v := convertData(val.Value.Data, Str)
+
+	str = fmt.Sprintf("%s", v)
+
+	return str, err
+}
+
+func convertData(data ParseValContract, t int) (r interface{}) {
+	if data.GetType() == t && t != Array {
+		r = data.GetValue()
+	}
+
+	return r
 }

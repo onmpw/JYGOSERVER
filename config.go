@@ -6,7 +6,6 @@ import (
 )
 
 const (
-	// CLIENT_MAX 表示客户端队列中最高允许的客户端连接数
 	DateFormat = "2006-01-02 15:04:05"
 	HOST       = "localhost"
 	PORT       = "9002"

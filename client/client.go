@@ -21,15 +21,32 @@ type Message struct {
 }
 
 type Client struct {
-	Err        error
-	ID         uint64
-	Conn       net.Conn
-	Created    string
+	// Err 错误信息
+	// 如果在解析过程或者处理消息过程中以后错误，则存入该字段。如果没有则为nil
+	Err error
+
+	// ID 客户端ID
+	ID uint64
+
+	// Conn 客户端链接
+	Conn net.Conn
+
+	// Created 创建时间
+	Created string
+	// ActiveTime 活动时间
 	ActiveTime string
-	Message    *Message
-	Data       *parser.Val
+
+	// Message 客户端传来的原始消息
+	Message *Message
+
+	// Data 对消息进行解析之后的值
+	Data *parser.Val
+
+	// Result 执行完之后的需要回传给客户端的结果值
+	Result string
 }
 
+// Pool 客户端队列
 type Pool struct {
 	sync.RWMutex
 	num  int
@@ -46,6 +63,7 @@ func (clientPool *Pool) Push(client *Client) bool {
 	return true
 }
 
+// GetLen 获取队列当前长度
 func (clientPool *Pool) GetLen() int {
 	return clientPool.num
 }
@@ -115,7 +133,7 @@ func (client *Client) Response() {
 	if client.Err != nil {
 		client.ErrorResponse()
 	} else {
-		err := client.response(fmt.Sprintf("成功,您发送的消息为%s", client.Data.Value.Data))
+		err := client.response(fmt.Sprintf("Success:'%s'", client.Result))
 
 		if err != nil {
 			fmt.Println(err.Error())

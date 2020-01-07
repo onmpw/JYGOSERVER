@@ -28,7 +28,7 @@ func (parse *ArrayParser) myType() int {
 
 // Parse 实现了 ParseContract 的 Parse方法
 // Array数据解析入口方法
-func (parse *ArrayParser) Parse() (interface{}, error) {
+func (parse *ArrayParser) Parse() (ParseValContract, error) {
 	val := new(ArrayVal)
 
 	num, err := parse.getElementNum()
@@ -69,4 +69,16 @@ func (parse *ArrayParser) getElementNum() (num int, err error) {
 	num, err = strconv.Atoi(v)
 
 	return num, err
+}
+
+// GetValue 实现 ParseValContract接口GetValue
+// 获取解析后的结果中的数组值
+func (val *ArrayVal) GetValue() interface{} {
+	return val.val
+}
+
+// GetType 实现 ParseValContract 接口 GetType
+// 获取值的类型
+func (val *ArrayVal) GetType() int {
+	return Array
 }

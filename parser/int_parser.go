@@ -26,7 +26,7 @@ func (parse *IntParser) myType() int {
 
 // Parse 实现了 ParseContract 的 Parse方法
 // Int数据解析入口方法
-func (parse *IntParser) Parse() (interface{}, error) {
+func (parse *IntParser) Parse() (ParseValContract, error) {
 	val := new(IntVal)
 
 	con, err := parse.getContent()
@@ -54,4 +54,16 @@ func (parse *IntParser) getContent() (content int, err error) {
 	}
 
 	return content, nil
+}
+
+// GetValue 实现 ParseValContract接口GetValue
+// 获取解析后的结果中的整数值
+func (val *IntVal) GetValue() interface{} {
+	return val.val
+}
+
+// GetType 实现 ParseValContract 接口 GetType
+// 获取值的类型
+func (val *IntVal) GetType() int {
+	return Int
 }

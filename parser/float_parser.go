@@ -26,7 +26,7 @@ func (parse *FloatParser) myType() int {
 
 // Parse 实现了 ParseContract 的 Parse方法
 // Float数据解析入口方法
-func (parse *FloatParser) Parse() (interface{}, error) {
+func (parse *FloatParser) Parse() (ParseValContract, error) {
 	val := new(FloatVal)
 
 	con, err := parse.getContent()
@@ -54,4 +54,16 @@ func (parse *FloatParser) getContent() (content float64, err error) {
 	}
 
 	return content, nil
+}
+
+// GetValue 实现 ParseValContract接口GetValue
+// 获取解析后的结果中的浮点数值
+func (val *FloatVal) GetValue() interface{} {
+	return val.val
+}
+
+// GetType 实现 ParseValContract 接口 GetType
+// 获取值的类型
+func (val *FloatVal) GetType() int {
+	return Float
 }
