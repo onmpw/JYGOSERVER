@@ -5,7 +5,7 @@ import (
 )
 
 func startHandlerServer() {
-	cc := handler.InitHandlerPool()
+	cc := handler.InitPool()
 
 	handler.RegisterHandler()
 

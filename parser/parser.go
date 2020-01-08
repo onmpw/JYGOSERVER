@@ -238,6 +238,61 @@ func GetString(val *Val) (str string, err error) {
 	return str, err
 }
 
+// GetInt 获取从消息中解析出来的int值
+func GetInt(val *Val) (ir int, err error) {
+	// 首先判断是否是Int类型
+	// 如果是，则返回具体值； 不是则返回错误信息
+	if val.Value.TypeKey != Int {
+		return ir, fmt.Errorf("您的消息不是期望的整型，而是%s", T[val.Value.TypeKey])
+	}
+
+	v := convertData(val.Value.Data, Int)
+
+	ir = v.(int)
+	return ir, err
+}
+
+// GetFloat 获取从消息中解析出来的float值
+func GetFloat(val *Val) (fr float32, err error) {
+	// 首先判断是否是Float类型
+	// 如果是，则返回具体值； 不是则返回错误信息
+	if val.Value.TypeKey != Float {
+		return fr, fmt.Errorf("您的消息不是期望的浮点型，而是%s", T[val.Value.TypeKey])
+	}
+
+	v := convertData(val.Value.Data, Float)
+
+	fr = v.(float32)
+	return fr, err
+}
+
+// GetArray 获取从消息中解析出来的数组
+func GetArray(val *Val) (ar []interface{}, err error) {
+	// 首先判断是否是Array类型
+	// 如果是，则返回具体值； 不是则返回错误信息
+	if val.Value.TypeKey != Array {
+		return ar, fmt.Errorf("您的消息不是期望的整型，而是%s", T[val.Value.TypeKey])
+	}
+
+	getArrayValue(val.Value, &ar)
+
+	return ar, err
+}
+
+// getArrayValue 取出数组的值
+func getArrayValue(val *ParseVal, av *[]interface{}) {
+	r := val.Data.GetValue()
+	arr := r.([]*ParseVal)
+
+	for _, v := range arr {
+		if v.TypeKey == Array {
+			getArrayValue(v, av)
+		}
+
+		*av = append(*av, convertData(v.Data, v.TypeKey))
+	}
+}
+
 func convertData(data ParseValContract, t int) (r interface{}) {
 	if data.GetType() == t && t != Array {
 		r = data.GetValue()

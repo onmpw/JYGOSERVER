@@ -25,6 +25,9 @@ func main() {
 	// 开启handler处理器
 	go startHandlerServer()
 
+	// 开启命令处理器
+	go startCommandServer()
+
 	tcpAddr, err := net.ResolveTCPAddr(NETWORK, Host+":"+Port)
 
 	if err != nil {

@@ -14,7 +14,7 @@ var handler ContractHandler
 
 var clientChan chan *client.Client
 
-func InitHandlerPool() <-chan *client.Client {
+func InitPool() <-chan *client.Client {
 	clientChan = make(chan *client.Client, client.ClientsMax)
 
 	return clientChan
