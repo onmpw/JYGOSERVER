@@ -118,7 +118,7 @@ func (client *Client) readMessageFromConn(conn net.Conn) (Len int, str string, e
 		}
 
 		buffer.Write(rb[0:num])
-		if num < BufferSize || Len == mesLen {
+		if Len == mesLen {
 			break
 		}
 	}
@@ -143,7 +143,7 @@ func (client *Client) Response() {
 
 // ErrorResponse 错误响应
 func (client *Client) ErrorResponse() {
-	errMes := fmt.Sprintf("错误:%s", client.Err.Error())
+	errMes := fmt.Sprintf("Failed:%s", client.Err.Error())
 
 	err := client.response(errMes)
 

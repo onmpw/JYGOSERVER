@@ -59,8 +59,13 @@ func (handle *OrderHandler) Handle(c *client.Client) bool {
 	count := model.Read(new(User)).Filter("oid", user.Oid).Count()
 
 	if count == 0 {
-		lastInsertId := model.Add(user)
+		lastInsertId, err := model.Add(user)
 
+		if err != nil {
+			c.Err = err
+			c.ErrorResponse()
+			return false
+		}
 		str = fmt.Sprintf("处理成功，添加Id:%d", lastInsertId)
 	} else {
 		str = fmt.Sprintf("订单已经存在，无须再处理！")

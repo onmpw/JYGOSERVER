@@ -1,8 +1,8 @@
 package main
 
 import (
-	"JYGO/config"
 	"flag"
+	"github.com/onmpw/JYGO/config"
 )
 
 const (
