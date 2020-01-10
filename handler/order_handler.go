@@ -18,6 +18,7 @@ type User struct {
 	Address   string
 	GoodsName string
 	OrderInfo string
+	Price     float32
 	Oid       string
 }
 
