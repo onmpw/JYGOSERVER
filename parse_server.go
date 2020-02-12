@@ -56,6 +56,13 @@ func parse2() {
 			c.Response()
 			return
 		}
+
+		if !c.IsAuth() {
+			c.Auth()
+			c.Response()
+			return
+		}
+
 		SetClient(c)
 	}
 }

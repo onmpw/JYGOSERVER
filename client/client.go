@@ -4,9 +4,11 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
+	"github.com/onmpw/JYGO/config"
 	"io"
 	"net"
 	"server/parser"
+	"strings"
 	"sync"
 )
 
@@ -30,6 +32,13 @@ type Client struct {
 
 	// Conn 客户端链接
 	Conn net.Conn
+
+	// 是否经过验证
+	auth bool
+
+	user string
+
+	password string
 
 	// Created 创建时间
 	Created string
@@ -170,15 +179,81 @@ func (client *Client) response(mes string) error {
 	return err
 }
 
+// SetAuth 设置客户端是否验证字段
+func (client *Client) SetAuth(auth bool) {
+	client.auth = auth
+}
+
+// IsAuth 是否已经验证成功
+func (client *Client) IsAuth() bool {
+	return client.auth
+}
+
+// SetUserInfo 设置当前客户端的用户名和密码
+func (client *Client) SetUserInfo(user string, password string) {
+	client.user = user
+	client.password = password
+}
+
+// GetUserName 获取当前登录的用户
+func (client Client) GetUserName() string {
+	return client.user
+}
+
+// Auth 开始进行验证
+func (client *Client) Auth() bool {
+	if client.IsAuth() {
+		return true
+	}
+	var stringArr []string
+	authInfo, err := parser.GetString(client.Data)
+
+	if err != nil {
+		client.Err = err
+		return false
+	}
+
+	stringArr = strings.Split(authInfo, "@")
+	if len(stringArr) != 2 {
+		client.Err = fmt.Errorf("在进行实际业务之前，请先验证用户！")
+		return false
+	}
+
+	username := stringArr[0]
+	password := stringArr[1]
+
+	if ok := authUser(username, password); ok {
+		client.SetAuth(ok)
+		client.SetUserInfo(username, password)
+		client.Result = "用户验证成功！"
+		return true
+	}
+
+	client.Err = fmt.Errorf("用户验证失败，请检查用户名和密码")
+
+	return false
+}
+
+// authUser 验证用户名和密码是否正确
+func authUser(username string, password string) (ok bool) {
+	if username == config.Conf.C("User") && password == config.Conf.C("Password") {
+		ok = true
+	} else {
+		ok = false
+	}
+	return ok
+}
+
 // Close 关闭client
 func (client *Client) Close(closeConn bool) (err error) {
 	client.Data = nil
 	client.Message = nil
+	client.Err = nil
 
 	if closeConn {
 		err = client.Conn.Close()
+		client.Conn = nil
 	}
-	client.Conn = nil
 
 	return err
 }

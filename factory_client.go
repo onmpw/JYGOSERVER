@@ -24,8 +24,8 @@ func InitAllocator() *ClientAllocator {
 // registerClient 注册新的client
 func (allocator *ClientAllocator) registerClient(conn net.Conn) {
 	_ = conn.SetReadDeadline(time.Now().Add(30 * time.Minute))
+	c := makeClient(conn)
 	for {
-		c := makeClient(conn)
 
 		mesLen, err := c.ReadMessage()
 
@@ -49,6 +49,8 @@ func makeClient(conn net.Conn) (c *client.Client) {
 	c.ActiveTime = time.Unix(time.Now().Unix(), 0).Format(DateFormat)
 
 	c.Conn = conn
+
+	c.SetAuth(checkAuth())
 
 	return c
 }

@@ -10,12 +10,14 @@ const (
 	HOST       = "localhost"
 	PORT       = "9002"
 	NETWORK    = "tcp"
+	AUTH       = "off"
 )
 
 var (
 	configFile = "/etc/jygoserver.ini"
 	Host       string
 	Port       string
+	Auth       string
 )
 
 // loadConfig 解析配置项
@@ -28,6 +30,12 @@ func loadConfig() {
 	Host = config.Conf.C("ListenAddr")
 	Port = config.Conf.C("ListenPort")
 
+	Auth = config.Conf.C("Auth")
+
+	if Auth == "" {
+		Auth = AUTH
+	}
+
 	if Host == "" {
 		Host = HOST
 	}
@@ -35,4 +43,12 @@ func loadConfig() {
 	if Port == "" {
 		Port = PORT
 	}
+}
+
+func checkAuth() bool {
+	if Auth == "off" {
+		return true
+	}
+
+	return false
 }
