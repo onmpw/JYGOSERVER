@@ -30,7 +30,7 @@ func (allocator *ClientAllocator) registerClient(conn net.Conn) {
 		mesLen, err := c.ReadMessage()
 
 		if mesLen == -1 || (mesLen == 0 && err == io.EOF) {
-			_ = c.Close(true)
+			c.Response()
 			break
 		}
 

@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	BufferSize = 100
+	BufferSize = 1024
 	ClientsMax = 1024
 )
 
@@ -113,6 +113,12 @@ func (client *Client) readMessageFromConn(conn net.Conn) (Len int, str string, e
 	num, err = reader.Read(length)
 
 	mesLen := byteToInt(length)
+	newStr := fmt.Sprintf("%08x",mesLen)
+
+	if strings.Compare(string(length),newStr) != 0 {
+		client.Err = fmt.Errorf("%s","The beinging of this string is not hex.")
+		return -1,"",err
+	}
 
 	for {
 		num, err = reader.Read(rb)
